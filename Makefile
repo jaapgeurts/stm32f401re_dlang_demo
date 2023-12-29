@@ -10,7 +10,7 @@ DPP=d++
 DC=ldc2
 LD=arm-none-eabi-ld
 
-LINKSCRIPT=generated.stm32F401re.ld
+LDSCRIPT=generated.stm32F401re.ld
 
 SRCS = demo.d
 DPPS = stmbridge.dpp
@@ -24,16 +24,16 @@ include $(OPENCM3_DIR)/mk/genlink-config.mk
 
 all: demo
 
-link: $(LINKSCRIPT)
+link: $(LDSCRIPT)
 
-demo: $(LINKSCRIPT) $(DPPS) $(OBJS) $(SRCS)
-	$(LD) $(OBJS) --gc-sections -L $(OPENCM3_DIR)/lib/ -lopencm3_stm32f4 -T stm32f401e.ld -o $@.elf
+demo: $(LDSCRIPT) $(DPPS) $(OBJS) $(SRCS)
+	$(LD) $(OBJS) --gc-sections -L $(OPENCM3_DIR)/lib/ -lopencm3_stm32f4 -T stm32f401re.ld -o $@.elf
 
 %.d: %.dpp
 	$(DPP) --define=STM32F4 --include-path=$(OPENCM3_DIR)/include/ --preprocess-only $<
 
 %.o: %.d
-	$(DC) -g -march=thumb -mcpu=cortex-m3 --float-abi=hard --betterC -c $<
+	$(DC) --relocation-model=static -g -march=thumb -mcpu=cortex-m4 --float-abi=hard --betterC -c $<
 
 upload: demo
 	openocd -d2 -s /home/jaapg/.platformio/packages/tool-openocd/scripts -f board/st_nucleo_f4.cfg -c "program {$<.elf}  verify reset; shutdown;"

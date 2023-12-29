@@ -1,5 +1,7 @@
 import stmbridge;
 
+import core.stdc.stdio;
+
 // https://github.com/ldc-developers/ldc/issues/3290
 import ldc.attributes;
 @llvmAttr("nounwind") : import ldc.llvmasm;
@@ -16,6 +18,12 @@ void console_putc(char c)
 }
 
 void console_puts(string s)
+{
+    foreach(l; s)
+        console_putc(l);
+}
+
+void console_puts(char[40] s)
 {
     foreach(l; s)
         console_putc(l);
@@ -66,13 +74,38 @@ extern(C) void main()
             blinking = !blinking;
         }
         console_puts( blinking ? "true\r\n" : "false\r\n");
-        if (blinking)
+
+        // ulong value = cast(ulong)&blinking;
+        //
+        // string hexChars = "0123456789ABCDEF";
+        // char[40] result = "0x\0";
+        //
+        // int j = 2;
+        // for (int i = value.sizeof * 2 - 1; i >= 0; --i) {
+        //     result[j] = hexChars[(value >> (i * 4)) & 0xF];
+        //     j++;
+        // }
+        // result[j] = 0;
+        // console_puts(result);
+        // console_puts("\r\n");
+
+       if (blinking)
             setled();
 
         delay(2);
         //console_puts("Button pushed");
     }
+}
 
+extern(C) void __assert(byte* a, byte* b, int) {
+
+}
+
+extern(C) void* memcpy(byte* a, byte* b, size_t n) {
+byte* t = a;
+    for(int i=0;i<n;i++)
+        *a++ = *b++;
+    return t;
 }
 
 void setled() {

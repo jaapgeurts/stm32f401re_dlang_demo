@@ -50,14 +50,14 @@ SECTIONS
 
  /* ARM exception table ? C++ ? */
  .ARM.extab : {
-  *(.ARM.extab*)
+    *(.ARM.extab*)
  } >rom
 
  /* ARM start address table */
  .ARM.exidx : {
-  __exidx_start = .;
-  *(.ARM.exidx*)
-  __exidx_end = .;
+    __exidx_start = .;
+    *(.ARM.exidx*)
+    __exidx_end = .;
  } >rom
 
  /* _etext = The first address following the program text. */
@@ -73,11 +73,11 @@ SECTIONS
 
  /* initialized global variables */
  .data : {
-  _data = .;
-  *(.data*)
-  *(.ramtext*)
-  . = ALIGN(4);
-  _edata = .; /* The first address following the initialized vars region. */
+    _data = .;
+    *(.data*)
+    *(.ramtext*)
+    . = ALIGN(4);
+    _edata = .; /* The first address following the initialized vars region. */
  } >ram AT >rom
 
  _data_loadaddr = LOADADDR(.data);
@@ -90,6 +90,7 @@ SECTIONS
     _ebss = .; /* The first address following the uninitialized vars region. */
  } >ram
 
+ /* throw away exception frames */
  /DISCARD/ : { *(.eh_frame) }
  . = ALIGN(4);
  end = .;
