@@ -13,11 +13,21 @@ MEMORY
 /* Section definitions */
 SECTIONS
 {
+  /* We don't need exceptions, and discarding these sections
+     prevents linker errors with LDC */
+  /DISCARD/ :
+  {
+    *(.ARM.extab*)
+    *(.ARM.exidx*)
+  }
+
   /* program code placed in rom */
  .text : {
     *(.vectors)  /* Startup vector table */
+    *(.text)    /* text sections */
     *(.text*)    /* text sections */
     . = ALIGN(4);
+    *(.rodata)  /* Read only data */
     *(.rodata*)  /* Read only data */
     . = ALIGN(4);
  } >rom
@@ -48,18 +58,18 @@ SECTIONS
     __fini_array_end = .;
  } >rom
 
- /* ARM exception table ? C++ ? */
+ /* ARM exception table
  .ARM.extab : {
     *(.ARM.extab*)
  } >rom
 
- /* ARM start address table */
+ /* ARM start address table
  .ARM.exidx : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
  } >rom
-
+*/
  /* _etext = The first address following the program text. */
  . = ALIGN(4);
  _etext = .;
