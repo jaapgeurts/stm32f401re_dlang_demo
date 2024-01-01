@@ -12,7 +12,7 @@ LD=arm-none-eabi-ld
 
 LDSCRIPT=generated.stm32F401re.ld
 
-SRCS = demo.d io.d clock.o button.d # mcudruntime.d
+SRCS = demo.d io.d clock.o button.d mcudruntime.d
 DPPS = stmbridge.dpp
 OBJS = $(patsubst %.dpp,%.o,$(DPPS)) $(patsubst %.d,%.o,$(SRCS))
 

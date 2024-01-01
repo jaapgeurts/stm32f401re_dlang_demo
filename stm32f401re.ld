@@ -6,8 +6,8 @@ ENTRY(reset_handler)
 /* Memories definition */
 MEMORY
 {
- ram (rwx) : ORIGIN = 0x20000000, LENGTH = 96K
- rom (rx)  : ORIGIN = 0x08000000, LENGTH = 512K
+ flash (rx)  : ORIGIN = 0x08000000, LENGTH = 512K
+ ram   (rwx) : ORIGIN = 0x20000000, LENGTH = 96K
 }
 
 /* Section definitions */
@@ -21,54 +21,54 @@ SECTIONS
     *(.ARM.exidx*)
   }
 
-  /* program code placed in rom */
+  /* program code placed in flash */
  .text : {
     *(.vectors)  /* Startup vector table */
     *(.text)    /* text sections */
-    *(.text*)    /* text sections */
+    *(.text.*)    /* text sections */
     . = ALIGN(4);
     *(.rodata)  /* Read only data */
-    *(.rodata*)  /* Read only data */
+    *(.rodata.*)  /* Read only data */
     . = ALIGN(4);
- } >rom
+ } >flash
 
-  /* array initialization code placed in rom */
+  /* array initialization code placed in flash */
  .preinit_array : {
     . = ALIGN(4);
     __preinit_array_start = .;
     KEEP (*(.preinit_array))
     __preinit_array_end = .;
- } >rom
+ } >flash
 
-  /* array initialization code placed in rom */
+  /* array initialization code placed in flash */
  .init_array : {
     . = ALIGN(4);
     __init_array_start = .;
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array))
     __init_array_end = .;
- } >rom
+ } >flash
 
-  /* array initialization code placed in rom */
+  /* array initialization code placed in flash */
  .fini_array : {
     . = ALIGN(4);
     __fini_array_start = .;
     KEEP (*(.fini_array))
     KEEP (*(SORT(.fini_array.*)))
     __fini_array_end = .;
- } >rom
+ } >flash
 
  /* ARM exception table
  .ARM.extab : {
     *(.ARM.extab*)
- } >rom
+ } >flash
 
  /* ARM start address table
  .ARM.exidx : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
- } >rom
+ } >flash
 */
  /* _etext = The first address following the program text. */
  . = ALIGN(4);
@@ -84,21 +84,43 @@ SECTIONS
  /* initialized global variables */
  .data : {
     _data = .;
-    *(.data*)
-    *(.ramtext*)
+    *(.data)
+    *(.data.*)
     . = ALIGN(4);
     _edata = .; /* The first address following the initialized vars region. */
- } >ram AT >rom
+ } >ram AT >flash
 
  _data_loadaddr = LOADADDR(.data);
 
  /* Block starting symbol = uninitialized global variables */
  .bss : {
-    *(.bss*)
+    *(.bss)
+    *(.bss.*)
     *(COMMON)
     . = ALIGN(4);
     _ebss = .; /* The first address following the uninitialized vars region. */
  } >ram
+
+  /* TLS Block starting symbol = uninitialized global variables */
+/* .tbss : {
+    *(.tbss)
+    *(.tbss*)
+    . = ALIGN(4);
+    _etbss = .; /* The first address following the uninitialized vars region. * /
+ } >ram*/
+
+/*   . = ALIGN(4); */
+
+ /* TLS initialized variables */
+/* .tdata : {
+   _tdata = .;
+   *(.tdata)
+   *(.tdata*)
+   . = ALIGN(4);
+   _etdata = .;
+ } >ram AT >flash
+
+_tdata_loadaddr = LOADADDR(.tdata);*/
 
  /* throw away exception frames */
  /DISCARD/ : { *(.eh_frame) }

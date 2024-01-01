@@ -36,6 +36,9 @@ extern(C) void* memcpy(byte* a, byte* b, size_t n) {
     return t;
 }
 
-// extern (C) void* __aeabi_read_tp() {
-// }
+extern (C) void* _tdata_start;
+
+extern (C) void* __aeabi_read_tp() {
+  return  _tdata_start - 8;
+}
 

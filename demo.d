@@ -6,6 +6,12 @@ import clock;
 //import mcudruntime;
 import button;
 
+// TODO: Move to TLS
+// TODO: Move to DUB
+// TODO: libopencm3 headers. generate per header.
+// TODO: Rethink libopencm3 headers (d++ vs dstep)
+// TODO: Move to project scaffold template
+
 // https://github.com/ldc-developers/ldc/issues/3290
 import ldc.attributes;
 @llvmAttr("nounwind") : import ldc.llvmasm;
@@ -20,6 +26,7 @@ __gshared blinkCount = 0;
 __gshared ulong lastTime;
 
 __gshared Button but1 = Button(GPIOC,GPIO13);
+
 
 void gpio_setup()
 {
