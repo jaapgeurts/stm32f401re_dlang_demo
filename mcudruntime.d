@@ -1,5 +1,17 @@
 module mcudruntime;
 
+import io;
+
+// pragma(LDC_intrinsic, "ldc.bitop.vld") ubyte volatileLoad(ubyte* ptr);
+// pragma(LDC_intrinsic, "ldc.bitop.vld") ushort volatileLoad(ushort* ptr);
+// pragma(LDC_intrinsic, "ldc.bitop.vld") uint volatileLoad(uint* ptr);
+// pragma(LDC_intrinsic, "ldc.bitop.vld") ulong volatileLoad(ulong* ptr);
+// pragma(LDC_intrinsic, "ldc.bitop.vst") void volatileStore(ubyte* ptr, ubyte value);
+// pragma(LDC_intrinsic, "ldc.bitop.vst") void volatileStore(ushort* ptr, ushort value);
+// pragma(LDC_intrinsic, "ldc.bitop.vst") void volatileStore(uint* ptr, uint value);
+// pragma(LDC_intrinsic, "ldc.bitop.vst") void volatileStore(ulong* ptr, ulong value);
+
+
 size_t strlen(const(char)* s) {
     size_t n;
     for (n = 0; *s != '\0'; ++s) {
@@ -23,4 +35,7 @@ extern(C) void* memcpy(byte* a, byte* b, size_t n) {
         *a++ = *b++;
     return t;
 }
+
+// extern (C) void* __aeabi_read_tp() {
+// }
 

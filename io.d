@@ -57,6 +57,20 @@ template isIntegral(T)
             && !is(immutable T == immutable bool) && !is(T == __vector);
 }
 
+   // ulong value = cast(ulong)&blinking;
+        //
+        // string hexChars = "0123456789ABCDEF";
+        // char[40] result = "0x\0";
+        //
+        // int j = 2;
+        // for (int i = value.sizeof * 2 - 1; i >= 0; --i) {
+        //     result[j] = hexChars[(value >> (i * 4)) & 0xF];
+        //     j++;
+        // }
+        // result[j] = 0;
+        // console_puts(result);
+        // console_puts("\r\n");
+
 string toString(T)(T arg) {
     return "TODO 1";
 }
