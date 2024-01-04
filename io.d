@@ -39,6 +39,14 @@ void write_uart(string s)
     }
 }
 
+void write_uart(uint arg, bool asHex = false) {
+    string hexChars = "0123456789ABCDEF";
+    write_uart("0x");
+    for (int i = arg.sizeof * 2 - 1; i >= 0; --i) {
+        write_uart(hexChars[(arg >> (i * 4)) & 0xF]);
+    }
+}
+
 void writeln(S...)(S args)
 {
     write(args, '\r', '\n');
@@ -46,6 +54,8 @@ void writeln(S...)(S args)
 
 enum bool isBoolean(T) = __traits(isUnsigned, T) && is(T : bool);
 enum bool isSomeString(T) = is(immutable T == immutable C[], C) && (is(C == char) || is(C == wchar) || is(C == dchar));
+enum bool isPointer(T) = is(T == U*, U);
+
 template isIntegral(T)
 {
     static if (!__traits(isIntegral, T))
@@ -55,24 +65,6 @@ template isIntegral(T)
     else
         enum isIntegral = __traits(isZeroInit, T) // Not char, wchar, or dchar.
             && !is(immutable T == immutable bool) && !is(T == __vector);
-}
-
-   // ulong value = cast(ulong)&blinking;
-        //
-        // string hexChars = "0123456789ABCDEF";
-        // char[40] result = "0x\0";
-        //
-        // int j = 2;
-        // for (int i = value.sizeof * 2 - 1; i >= 0; --i) {
-        //     result[j] = hexChars[(value >> (i * 4)) & 0xF];
-        //     j++;
-        // }
-        // result[j] = 0;
-        // console_puts(result);
-        // console_puts("\r\n");
-
-string toString(T)(T arg) {
-    return "TODO 1";
 }
 
 void write(T...)(T args) {
@@ -85,11 +77,14 @@ void write(T...)(T args) {
             write_uart(arg);
         }
         else static if (isIntegral!A) {
-            write_uart(toString(arg));
+            write_uart(arg);
         }
         else static if (isBoolean!A)
         {
             write_uart(arg ? "true" : "false");
+        }
+        else static if(isPointer!A) {
+            write_uart(cast(uint)arg, true);
         }
         else {
         // TODO: add other types such as char

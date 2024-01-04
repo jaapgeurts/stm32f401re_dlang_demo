@@ -11,6 +11,9 @@ import io;
 // pragma(LDC_intrinsic, "ldc.bitop.vst") void volatileStore(uint* ptr, uint value);
 // pragma(LDC_intrinsic, "ldc.bitop.vst") void volatileStore(ulong* ptr, ulong value);
 
+void rt_start() {
+    init_tls();
+}
 
 size_t strlen(const(char)* s) {
     size_t n;
@@ -36,9 +39,30 @@ extern(C) void* memcpy(byte* a, byte* b, size_t n) {
     return t;
 }
 
-extern (C) void* _tdata_start;
+extern(C) __gshared extern uint _tdata_loadaddr;
+extern(C) __gshared extern uint _tdata;
+extern(C) __gshared extern uint _etdata;
+extern(C) __gshared extern uint _tbss;
+extern(C) __gshared extern uint _etbss;
+
+private void init_tls() {
+    uint* src, dest;
+
+    // clear out tbss
+    dest =  &_tbss;
+    while (dest < &_etbss) {
+		*dest++ = 0;
+	}
+
+    // copy tdata
+    for (src = &_tdata_loadaddr, dest = &_tdata;
+		dest < &_etdata;
+		src++, dest++) {
+		*dest = *src;
+	}
+}
 
 extern (C) void* __aeabi_read_tp() {
-  return  _tdata_start - 8;
+    return &_tdata;
 }
 

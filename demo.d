@@ -3,7 +3,7 @@ import core.stdc.stdio;
 import stmbridge;
 import io;
 import clock;
-//import mcudruntime;
+import mcudruntime;
 import button;
 
 // TODO: Move to TLS
@@ -20,13 +20,12 @@ enum BlinkState { FAST, SLOW }
 enum FAST_INTERVAL = 100;
 enum SLOW_INTERVAL = 500;
 
-__gshared bool blinking = true;
+bool blinking = true;
 __gshared BlinkState blinkState = BlinkState.SLOW;
 __gshared blinkCount = 0;
-__gshared ulong lastTime;
+ulong lastTime;
 
 __gshared Button but1 = Button(GPIOC,GPIO13);
-
 
 void gpio_setup()
 {
@@ -48,8 +47,12 @@ void delay(int f)
         __asm("nop", "");
 }
 
+
 extern(C) void main()
 {
+
+    rt_start();
+
     // string a;
     // a ~= "a";
     clock_setup();
@@ -59,6 +62,13 @@ extern(C) void main()
     setupIO();
 
     writeln("Hello world");
+    // writeln("_data:\t", &_data);
+    // writeln("_edata:\t",&_edata);
+    // writeln("_tbss:\t",&_tbss);
+    // writeln("_etbss:\t",&_etbss);
+    // writeln("_tdata:\t",&_tdata);
+    // writeln("_etdata:\t",&_etdata);
+    // writeln("blinking:\t",&blinking);
 
     gpio_set(GPIOA, GPIO5);
 
@@ -66,10 +76,14 @@ extern(C) void main()
     while(true) {
 
         if (but1.keyDown()) {
-            writeln("Button pushed");
             blinking = !blinking;
-            if (!blinking)
+            if (!blinking) {
+                writeln("Off");
                 gpio_clear(GPIOA, GPIO5);
+            }
+            else {
+                writeln("On");
+            }
 
             lastTime = system_millis + SLOW_INTERVAL;
         }

@@ -102,17 +102,18 @@ SECTIONS
  } >ram
 
   /* TLS Block starting symbol = uninitialized global variables */
-/* .tbss : {
+ .tbss : {
+   _tbss = .;
     *(.tbss)
     *(.tbss*)
     . = ALIGN(4);
-    _etbss = .; /* The first address following the uninitialized vars region. * /
- } >ram*/
+    _etbss = .; /* The first address following the uninitialized vars region. */
+ } >ram
 
-/*   . = ALIGN(4); */
+   . = ALIGN(4);
 
  /* TLS initialized variables */
-/* .tdata : {
+ .tdata : {
    _tdata = .;
    *(.tdata)
    *(.tdata*)
@@ -120,7 +121,7 @@ SECTIONS
    _etdata = .;
  } >ram AT >flash
 
-_tdata_loadaddr = LOADADDR(.tdata);*/
+_tdata_loadaddr = LOADADDR(.tdata);
 
  /* throw away exception frames */
  /DISCARD/ : { *(.eh_frame) }
