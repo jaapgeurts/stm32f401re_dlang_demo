@@ -93,7 +93,7 @@ SECTIONS
  _data_loadaddr = LOADADDR(.data);
 
  /* Block starting symbol = uninitialized global variables */
- .bss : {
+ .bss  (NOLOAD) : {
     *(.bss)
     *(.bss.*)
     *(COMMON)
@@ -101,22 +101,25 @@ SECTIONS
     _ebss = .; /* The first address following the uninitialized vars region. */
  } >ram
 
+ . = ALIGN(4);
+
   /* TLS Block starting symbol = uninitialized global variables */
- .tbss : {
+ .tbss (NOLOAD) : {
    _tbss = .;
     *(.tbss)
-    *(.tbss*)
+    *(.tbss.*)
+    *(.tcommon)
     . = ALIGN(4);
     _etbss = .; /* The first address following the uninitialized vars region. */
  } >ram
 
-   . = ALIGN(4);
+ /*  . = ALIGN(4);*/
 
  /* TLS initialized variables */
- .tdata : {
+ .tdata ALIGN(_etbss , 4) : {
    _tdata = .;
    *(.tdata)
-   *(.tdata*)
+   *(.tdata.*)
    . = ALIGN(4);
    _etdata = .;
  } >ram AT >flash

@@ -40,16 +40,30 @@ void write_uart(string s)
 }
 
 void write_uart(uint arg, bool asHex = false) {
-    string hexChars = "0123456789ABCDEF";
-    write_uart("0x");
-    for (int i = arg.sizeof * 2 - 1; i >= 0; --i) {
-        write_uart(hexChars[(arg >> (i * 4)) & 0xF]);
+    if (asHex) {
+        string hexChars = "0123456789ABCDEF";
+        write_uart("0x");
+        for (int i = arg.sizeof * 2 - 1; i >= 0; --i) {
+            write_uart(hexChars[(arg >> (i * 4)) & 0xF]);
+        }
+    } else {
+        string chars = "0123456789";
+        char[16] letters;
+        int idx =0;
+        do  {
+          ubyte remain = arg % 10;
+          letters[idx] = chars[remain];
+          idx++;
+          arg /= 10;
+        } while(arg>0);
+        for(int i=idx-1; i>=0;i--)
+            write_uart(letters[i]);
     }
 }
 
 void writeln(S...)(S args)
 {
-    write(args, '\r', '\n');
+    write(args,'\n');
 }
 
 enum bool isBoolean(T) = __traits(isUnsigned, T) && is(T : bool);

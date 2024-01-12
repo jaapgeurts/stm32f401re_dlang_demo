@@ -12,20 +12,18 @@ import button;
 // TODO: Rethink libopencm3 headers (d++ vs dstep)
 // TODO: Move to project scaffold template
 
-// https://github.com/ldc-developers/ldc/issues/3290
-import ldc.attributes;
-@llvmAttr("nounwind") : import ldc.llvmasm;
 
 enum BlinkState { FAST, SLOW }
 enum FAST_INTERVAL = 100;
 enum SLOW_INTERVAL = 500;
 
+// Put variables in the global segment.
+// If we need maximum performance, then move global variables into __gshared
 bool blinking = true;
-__gshared BlinkState blinkState = BlinkState.SLOW;
-__gshared blinkCount = 0;
+ubyte blinkCount = 0;
+BlinkState blinkState = BlinkState.SLOW;
 ulong lastTime;
-
-__gshared Button but1 = Button(GPIOC,GPIO13);
+Button but1 = Button(GPIOC,GPIO13);
 
 void gpio_setup()
 {
@@ -38,13 +36,6 @@ void gpio_setup()
     // Button 1
     gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO13);
 
-}
-
-void delay(int f)
-{
-    int i;
-    for (i = 0; i < 100000 * f; i++) /* Wait a bit. */
-        __asm("nop", "");
 }
 
 
@@ -62,13 +53,6 @@ extern(C) void main()
     setupIO();
 
     writeln("Hello world");
-    // writeln("_data:\t", &_data);
-    // writeln("_edata:\t",&_edata);
-    // writeln("_tbss:\t",&_tbss);
-    // writeln("_etbss:\t",&_etbss);
-    // writeln("_tdata:\t",&_tdata);
-    // writeln("_etdata:\t",&_etdata);
-    // writeln("blinking:\t",&blinking);
 
     gpio_set(GPIOA, GPIO5);
 

@@ -1,5 +1,10 @@
 module mcudruntime;
 
+// https://github.com/ldc-developers/ldc/issues/3290
+//import ldc.attributes;
+//@llvmAttr("nounwind") :
+import ldc.llvmasm;
+
 import io;
 
 // pragma(LDC_intrinsic, "ldc.bitop.vld") ubyte volatileLoad(ubyte* ptr);
@@ -39,11 +44,21 @@ extern(C) void* memcpy(byte* a, byte* b, size_t n) {
     return t;
 }
 
-extern(C) __gshared extern uint _tdata_loadaddr;
-extern(C) __gshared extern uint _tdata;
-extern(C) __gshared extern uint _etdata;
-extern(C) __gshared extern uint _tbss;
-extern(C) __gshared extern uint _etbss;
+void delay(int f)
+{
+    int i;
+    for (i = 0; i < 100000 * f; i++) /* Wait a bit. */
+        __asm("nop", "");
+}
+
+// These are used to initialize the TLS data and bss segments
+extern __gshared extern(C) {
+    uint _tdata_loadaddr; // label filled in by linker
+    uint _tdata;
+    uint _etdata;
+    uint _tbss;
+    uint _etbss;
+}
 
 private void init_tls() {
     uint* src, dest;
@@ -62,7 +77,34 @@ private void init_tls() {
 	}
 }
 
-extern (C) void* __aeabi_read_tp() {
-    return &_tdata;
+/* Thread Local Storage is implemented using software calls because STM32 doesn't
+have a TLS support through the TPIDRPRW register */
+extern(C) {
+/+
+// Warning: This code is incomplete.
+// This code is for emulated-tls thread model
+    struct __emutls_control {
+        uint size;  /* size of the object in bytes */
+        uint _align;  /* alignment of the object in bytes */
+        union {
+            uint* index;  /* data[index-1] is the object address */
+            void* address;  /* object address, when in single thread env */
+        }
+        void* value;  /* null or non-zero initial value for the object */
+    }
+    struct __emutls_object;
+
+    void* __emutls_get_address (__emutls_control *a)
+    {
+        return &a.address;
+    }
+  +/
+    // This code is for use with -fno-pic or --relocation-model=static
+    // and --fthread-model=local-exec
+    void* __aeabi_read_tp() {
+        // When the memory layout has the sections .tbss and .tdata (in this order), __aeabi_read_tp can simply return the start address of .tbss - 8.
+        return cast(void*)((cast(uint)&_tbss)-8);
+    }
+
 }
 

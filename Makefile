@@ -10,6 +10,15 @@ DPP=d++
 DC=ldc2
 LD=arm-none-eabi-ld
 
+ifeq ($(DC), ldc2)
+# LDC2 --emulated-tls
+  D_FLAGS_LDC=--relocation-model=static --fthread-model=local-exec -march=thumb -mcpu=cortex-m4 --float-abi=hard --betterC
+else ifeq ($(DC),gdc)
+  D_FLAGS_GDC=-fno-pic -march=armv7e-m -mtune=cortex-m4 -mfloat-abi=hard -fno-druntime
+endif
+
+D_FLAGS_COMMON=-g $(D_FLAGS_GDC) $(D_FLAGS_LDC)
+
 LDSCRIPT=generated.stm32F401re.ld
 
 SRCS = demo.d io.d clock.o button.d mcudruntime.d
@@ -33,7 +42,7 @@ demo: $(LDSCRIPT) $(DPPS) $(OBJS)
 	$(DPP) --define=STM32F4 --include-path=$(OPENCM3_DIR)/include/ --preprocess-only $<
 
 %.o: %.d
-	$(DC) --relocation-model=static -g -march=thumb -mcpu=cortex-m4 --float-abi=hard --betterC -c $<
+	$(DC) $(D_FLAGS_COMMON) -c $<
 
 upload: demo
 	openocd -d2 -f board/st_nucleo_f4.cfg -c "program {$<.elf}  verify reset; shutdown;"
