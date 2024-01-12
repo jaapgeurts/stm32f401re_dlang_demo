@@ -18,7 +18,8 @@ enum FAST_INTERVAL = 100;
 enum SLOW_INTERVAL = 500;
 
 // Put variables in the global segment.
-// If we need maximum performance, then move global variables into __gshared
+// If we need maximum performance,
+// then move global variables into __gshared
 bool blinking = true;
 ubyte blinkCount = 0;
 BlinkState blinkState = BlinkState.SLOW;

@@ -99,10 +99,12 @@ extern(C) {
         return &a.address;
     }
   +/
-    // This code is for use with -fno-pic or --relocation-model=static
+    // This code is for use with -fno-pic(gdc) or --relocation-model=static(ldc2)
     // and --fthread-model=local-exec
     void* __aeabi_read_tp() {
+        // https://wiki.segger.com/Thread-Local_Storage
         // When the memory layout has the sections .tbss and .tdata (in this order), __aeabi_read_tp can simply return the start address of .tbss - 8.
+        // https://maskray.me/blog/2021-02-14-all-about-thread-local-storage
         return cast(void*)((cast(uint)&_tbss)-8);
     }
 
